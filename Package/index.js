@@ -24,9 +24,48 @@ function createReactTailwindCSSVite(projectName) {
   }
 
   console.log(`Creating a new React project with Tailwind CSS using Vite: ${projectName}`);
+//   execSync(`Set-ExecutionPolicy Bypass -Scope Process -Force`,{stdio:'inherit'});
   execSync(`npx create-vite ${projectName} --template react`, { stdio: 'inherit' });
   execSync(`cd ${projectPath} && npm install -D tailwindcss@latest postcss@latest autoprefixer@latest`, { stdio: 'inherit' });
-  execSync(`npx tailwindcss init -p`, { stdio: 'inherit' });
+  execSync(`cd ${projectPath} && npx tailwindcss init -p`, { stdio: 'inherit' });
+
+  // Update index.css
+  const indexPath = path.join(projectPath, 'src', 'index.css');
+  const newIndexContent = `
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+`;
+
+  updateFileContent(indexPath, newIndexContent);
+
+  // Update tailwind.config.js
+  const configPath = path.join(projectPath, 'tailwind.config.js');
+  const newConfigContent = `
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+`;
+
+  updateFileContent(configPath, newConfigContent);
+
 
   console.log('Setup completed successfully!');
+}
+
+function updateFileContent(filePath, newContent) {
+  try {
+    fs.writeFileSync(filePath, newContent);
+    console.log(`File ${filePath} updated successfully.`);
+  } catch (error) {
+    console.error(`Error updating file ${filePath}: ${error.message}`);
+  }
 }
